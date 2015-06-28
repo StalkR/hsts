@@ -2,10 +2,31 @@ package hsts
 
 import (
 	"bufio"
+	"log"
 	"net/http"
 	"strings"
 	"testing"
 )
+
+func ExampleNew() {
+	client := http.DefaultClient
+	// Wrap around the DefaultTransport to add HSTS support to it.
+	client.Transport = New(http.DefaultTransport)
+
+	// Assuming example.com has set up HSTS, we learn it at the first HTTPS request.
+	resp, err := client.Get("https://example.com")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	// So that any following request made in insecure HTTP would go in HTTPS.
+	resp, err = client.Get("http://example.com") // will become HTTPS
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+}
 
 func reply(req *http.Request, s string) (*http.Response, error) {
 	return http.ReadResponse(bufio.NewReader(strings.NewReader(s)), req)
