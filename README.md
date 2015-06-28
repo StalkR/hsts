@@ -1,0 +1,18 @@
+# HTTP Strict Transport Security (HSTS)
+
+[![Build Status][1]][2] [![Godoc][3]][4]
+
+http [RoundTripper][8] implementing [HTTP Strict Transport Security][6] ([RFC 6797][7]).
+
+`go get github.com/StalkR/hsts`
+
+Bugs, comments, questions: create a [new issue][5].
+
+[1]: https://api.travis-ci.org/StalkR/hsts.png?branch=master
+[2]: https://travis-ci.org/StalkR/hsts
+[3]: https://godoc.org/github.com/StalkR/hsts?status.png
+[4]: https://godoc.org/github.com/StalkR/hsts
+[5]: https://github.com/StalkR/hsts/issues/new
+[6]: https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
+[7]: https://tools.ietf.org/html/rfc6797
+[8]: https://godoc.org/net/http#RoundTripper
