@@ -53,7 +53,7 @@ func TestTransport(t *testing.T) {
 	}
 	defer resp.Body.Close()
 	if resp.Header.Get("Strict-Transport-Security") != "" {
-		t.Fatal("1: HSTS header in HTTP request")
+		t.Fatal("1: unexpected HSTS header in HTTP request")
 	}
 
 	// Second request over HTTPS to obtain HSTS header.
@@ -73,7 +73,7 @@ func TestTransport(t *testing.T) {
 	}
 	defer resp.Body.Close()
 	if resp.Header.Get("Strict-Transport-Security") == "" {
-		t.Fatal("3: HSTS header missing, we did not go to HTTPS")
+		t.Error("3: HSTS header missing, we did not go to HTTPS")
 	}
 
 	// Same with subdomain, we expect HSTS to send us to HTTPS.
@@ -83,6 +83,6 @@ func TestTransport(t *testing.T) {
 	}
 	defer resp.Body.Close()
 	if resp.Header.Get("Strict-Transport-Security") == "" {
-		t.Fatal("4: HSTS header missing, we did not go to HTTPS for subdomain")
+		t.Error("4: HSTS header missing, we did not go to HTTPS for subdomain")
 	}
 }
