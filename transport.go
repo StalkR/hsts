@@ -14,16 +14,16 @@ import (
 
 // Transport implements a RoundTripper adding HSTS to an existing RoundTripper.
 type Transport struct {
-	wrap       http.RoundTripper
-	sync.Mutex                      // protects m
-	m          map[string]directive // key is host (RFC section 8.3)
+	wrap  http.RoundTripper
+	m     sync.Mutex           // protects state
+	state map[string]directive // key is host (RFC section 8.3)
 }
 
 // New wraps around a RoundTripper to add HTTP Strict Transport Security (HSTS).
 func New(rt http.RoundTripper) *Transport {
 	return &Transport{
-		wrap: rt,
-		m:    make(map[string]directive),
+		wrap:  rt,
+		state: make(map[string]directive),
 	}
 }
 
@@ -40,8 +40,8 @@ func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 // request modifies an HTTP request for HSTS if needed.
 func (t *Transport) request(req *http.Request) *http.Request {
-	t.Lock()
-	defer t.Unlock()
+	t.m.Lock()
+	defer t.m.Unlock()
 
 	// TODO(StalkR): check host isn't an IP-literal or IPv4 (section 8.3.3).
 
@@ -52,7 +52,7 @@ func (t *Transport) request(req *http.Request) *http.Request {
 	}
 
 	if time.Now().After(d.expires) {
-		delete(t.m, host)
+		delete(t.state, host)
 		return req
 	}
 
@@ -75,7 +75,7 @@ func (t *Transport) request(req *http.Request) *http.Request {
 
 // find finds a host including subdomains. Lock must be taken already.
 func (t *Transport) find(host string, exact bool) (directive, bool) {
-	d, ok := t.m[host]
+	d, ok := t.state[host]
 	if ok && (exact || d.includeSubDomains) {
 		return d, true
 	}
@@ -88,13 +88,13 @@ func (t *Transport) find(host string, exact bool) (directive, bool) {
 
 // response looks into an HTTP response to see if HSTS state needs to be updated.
 func (t *Transport) response(resp *http.Response) {
-	t.Lock()
-	defer t.Unlock()
+	t.m.Lock()
+	defer t.m.Unlock()
 	d := parse(resp.Header.Get("Strict-Transport-Security"))
 	host := resp.Request.URL.Host
 	if d.maxAge == 0 {
-		delete(t.m, host)
+		delete(t.state, host)
 		return
 	}
-	t.m[host] = d
+	t.state[host] = d
 }
