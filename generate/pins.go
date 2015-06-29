@@ -72,22 +72,17 @@ func Get() ([]entry, error) {
 		return nil, err
 	}
 	tr := tar.NewReader(gz)
-	found := false
 	for {
 		hdr, err := tr.Next()
 		if err == io.EOF {
-			break
+			return nil, fmt.Errorf("pins: %s not found in archive", fileName)
 		}
 		if err != nil {
-			log.Fatalln(err)
+			return nil, err
 		}
 		if hdr.Name == fileName {
-			found = true
 			break
 		}
-	}
-	if !found {
-		return nil, fmt.Errorf("pins: %s not found in archive", fileName)
 	}
 	js, err := removeComments(tr)
 	if err != nil {
