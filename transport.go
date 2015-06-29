@@ -1,6 +1,8 @@
 /*
 Package hsts implements a RoundTripper that supports HTTP Strict Transport Security.
 */
+//go:generate go run generate/pins.go -p hsts -v pins -o pins.go
+//go:generate gofmt -w pins.go
 package hsts
 
 import (
@@ -23,7 +25,7 @@ type Transport struct {
 func New(rt http.RoundTripper) *Transport {
 	return &Transport{
 		wrap:  rt,
-		state: make(map[string]*directive),
+		state: pins,
 	}
 }
 
@@ -51,8 +53,10 @@ func (t *Transport) request(req *http.Request) *http.Request {
 		return req
 	}
 
-	if time.Now().After(d.received.Add(d.maxAge)) {
-		delete(t.state, host) // expired
+	static := d.received.IsZero()
+
+	if !static && time.Now().After(d.received.Add(d.maxAge)) {
+		delete(t.state, host)
 		return req
 	}
 

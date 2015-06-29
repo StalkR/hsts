@@ -9,8 +9,8 @@ import (
 // A directive stores HSTS state information for a given host.
 type directive struct {
 	received          time.Time
-	maxAge            time.Duration // required
-	includeSubDomains bool          // optional, default false
+	maxAge            time.Duration
+	includeSubDomains bool
 }
 
 // parse parses a Strict-Transport-Security header as specified in section 6.1.
