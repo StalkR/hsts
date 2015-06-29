@@ -19,9 +19,12 @@ func TestStaticDomains(t *testing.T) {
 	client.Transport = New(&checkTransport{})
 
 	// We expect some domains to be pinned therefore HTTPS at first request.
+	// We also expect they have includeSubDomains set.
 	for _, tt := range []string{
 		"accounts.google.com",
+		"x.accounts.google.com",
 		"login.yahoo.com",
+		"x.login.yahoo.com",
 	} {
 		resp, err := client.Get("http://" + tt)
 		if err != nil {
