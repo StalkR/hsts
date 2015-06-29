@@ -2,7 +2,8 @@
 
 [![Build Status][1]][2] [![Godoc][3]][4]
 
-http [RoundTripper][8] implementing [HTTP Strict Transport Security][6] ([RFC 6797][7]).
+http [RoundTripper][8] implementing [HTTP Strict Transport Security][6]
+([RFC 6797][7]), with sites preloaded from [Chromium][9].
 
 `go get github.com/StalkR/hsts`
 
@@ -16,3 +17,4 @@ Bugs, comments, questions: create a [new issue][5].
 [6]: https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
 [7]: https://tools.ietf.org/html/rfc6797
 [8]: https://godoc.org/net/http#RoundTripper
+[9]: https://www.chromium.org/hsts

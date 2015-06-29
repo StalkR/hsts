@@ -1,5 +1,8 @@
 /*
 Package hsts implements a RoundTripper that supports HTTP Strict Transport Security.
+
+It comes preloaded with sites from Chromium (https://www.chromium.org/hsts),
+updated with go generate.
 */
 //go:generate go run generate/pins.go -p hsts -v pins -o pins.go
 //go:generate gofmt -w pins.go
