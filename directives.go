@@ -67,6 +67,7 @@ func parse(header string) *directive {
 		case "max-age":
 			secs, err := strconv.Atoi(value)
 			if err != nil {
+				// Section 6.1 requirement 4 says to ignore non-conforming values.
 				continue
 			}
 			maxAge = time.Duration(secs) * time.Second
