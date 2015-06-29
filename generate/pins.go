@@ -3,10 +3,9 @@
 package main
 
 import (
-	"archive/tar"
 	"bufio"
 	"bytes"
-	"compress/gzip"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -48,43 +47,16 @@ func main() {
 	}
 }
 
-/*
-Chromium source code is hosted on Gerrit. The file we are interested in is:
-https://chromium.googlesource.com/chromium/src/+/master/net/http/transport_security_state_static.json
-Unfortunately there does not seem to be a way to download a single file.
-We do not want to clone the entire repo but we can get an archive of this particular
-directory: https://chromium.googlesource.com/chromium/src/+archive/master/net/http.tar.gz
-*/
-const (
-	archiveURL = "https://chromium.googlesource.com/chromium/src/+archive/master/net/http.tar.gz"
-	fileName   = "transport_security_state_static.json"
-)
+const pinURL = "https://chromium.googlesource.com/chromium/src/+/master/net/http/transport_security_state_static.json?format=TEXT"
 
-// Get obtains the archive, decompresses, extracts the JSON and parses it to return the pins.
+// Get obtains the file, decodes base64 and parses JSON to return the pins.
 func Get() ([]entry, error) {
-	resp, err := http.Get(archiveURL)
+	resp, err := http.Get(pinURL)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	gz, err := gzip.NewReader(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	tr := tar.NewReader(gz)
-	for {
-		hdr, err := tr.Next()
-		if err == io.EOF {
-			return nil, fmt.Errorf("pins: %s not found in archive", fileName)
-		}
-		if err != nil {
-			return nil, err
-		}
-		if hdr.Name == fileName {
-			break
-		}
-	}
-	js, err := removeComments(tr)
+	js, err := removeComments(base64.NewDecoder(base64.StdEncoding, resp.Body))
 	if err != nil {
 		return nil, err
 	}
