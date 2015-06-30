@@ -9,9 +9,9 @@ type checkTransport struct{}
 
 func (f *checkTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	if req.URL.Scheme == "https" {
-		return reply(req, "HTTP/1.1 200 OK\r\nSecure: 1\r\n\r\n")
+		return reply(req, "HTTP/1.1 200 OK\r\n\r\n")
 	}
-	return reply(req, "HTTP/1.1 200 OK\r\n\r\n")
+	return reply(req, "HTTP/1.1 500 OK\r\n\r\n")
 }
 
 func TestStaticDomains(t *testing.T) {
@@ -31,7 +31,7 @@ func TestStaticDomains(t *testing.T) {
 			t.Fatal(err)
 		}
 		defer resp.Body.Close()
-		if resp.Header.Get("Secure") == "" {
+		if resp.StatusCode != http.StatusOK {
 			t.Errorf("%s is not pinned", tt)
 		}
 	}
