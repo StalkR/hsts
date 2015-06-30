@@ -24,10 +24,15 @@ type Transport struct {
 	state map[string]*directive // key is host (RFC section 8.3)
 }
 
-// New wraps around a RoundTripper to add HTTP Strict Transport Security (HSTS).
-func New(rt http.RoundTripper) *Transport {
+// New wraps around a RoundTripper transport to add HTTP Strict Transport Security (HSTS).
+// It starts preloaded with Chromium's list (https://www.chromium.org/hsts).
+// Just like an http.Client if transport is nil, http.DefaultTransport is used.
+func New(transport http.RoundTripper) *Transport {
+	if transport == nil {
+		transport = http.DefaultTransport
+	}
 	return &Transport{
-		wrap:  rt,
+		wrap:  transport,
 		state: pins,
 	}
 }

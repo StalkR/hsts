@@ -10,8 +10,8 @@ import (
 
 func ExampleNew() {
 	client := http.DefaultClient
-	// Wrap around the DefaultTransport to add HSTS support to it.
-	client.Transport = New(http.DefaultTransport)
+	// Wrap around the client's transport to add HSTS support.
+	client.Transport = New(client.Transport)
 
 	// Assuming example.com has set up HSTS, we learn it at the first HTTPS request.
 	resp, err := client.Get("https://example.com")
@@ -84,5 +84,12 @@ func TestTransport(t *testing.T) {
 	defer resp.Body.Close()
 	if resp.Header.Get("Strict-Transport-Security") == "" {
 		t.Error("4: HSTS header missing, we did not go to HTTPS for subdomain")
+	}
+}
+
+func TestDefaultTransport(t *testing.T) {
+	transport := New(nil)
+	if transport.wrap != http.DefaultTransport {
+		t.Fatal("expected nil to set transport to DefaultTransport")
 	}
 }
