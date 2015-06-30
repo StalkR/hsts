@@ -31,9 +31,16 @@ func New(transport http.RoundTripper) *Transport {
 	if transport == nil {
 		transport = http.DefaultTransport
 	}
+
+	// Make a copy or we would change the default for future callers.
+	state := make(map[string]*directive)
+	for host, directive := range pins {
+		state[host] = directive
+	}
+
 	return &Transport{
 		wrap:  transport,
-		state: pins,
+		state: state,
 	}
 }
 
