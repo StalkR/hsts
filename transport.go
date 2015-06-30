@@ -4,9 +4,10 @@ Package hsts implements a RoundTripper that supports HTTP Strict Transport Secur
 It comes preloaded with sites from Chromium (https://www.chromium.org/hsts),
 updated with go generate.
 */
+package hsts
+
 //go:generate go run generate/preload.go -p hsts -v preload -o preload.go
 //go:generate gofmt -w preload.go
-package hsts
 
 import (
 	"fmt"
