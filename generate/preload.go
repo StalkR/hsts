@@ -32,13 +32,12 @@ func main() {
 	var b bytes.Buffer
 	fmt.Fprintf(&b, "package %s\n", *pkg)
 	b.WriteString("\n")
-	fmt.Fprintf(&b, "var %s = map[string]*directive{\n", *varname)
+	b.WriteString("// Automatically generated with go generate.\n")
+	b.WriteString("\n")
+	b.WriteString("// Host -> includeSubDomains\n")
+	fmt.Fprintf(&b, "var %s = map[string]bool{\n", *varname)
 	for _, e := range sites {
-		if e.IncludeSubDomains {
-			fmt.Fprintf(&b, "\t%#v: &directive{includeSubDomains: true},\n", e.Name)
-		} else {
-			fmt.Fprintf(&b, "\t%#v: &directive{},\n", e.Name)
-		}
+		fmt.Fprintf(&b, "\t%#v: %v,\n", e.Name, e.IncludeSubDomains)
 	}
 	b.WriteString("}\n")
 	if err := ioutil.WriteFile(*out, b.Bytes(), 0660); err != nil {

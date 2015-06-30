@@ -32,13 +32,10 @@ func New(transport http.RoundTripper) *Transport {
 	if transport == nil {
 		transport = http.DefaultTransport
 	}
-
-	// Make a copy or we would change the default for future callers.
 	state := make(map[string]*directive)
-	for host, directive := range preload {
-		state[host] = directive
+	for host, includeSubDomains := range preload {
+		state[host] = &directive{includeSubDomains: includeSubDomains}
 	}
-
 	return &Transport{
 		wrap:  transport,
 		state: state,
