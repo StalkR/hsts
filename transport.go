@@ -4,8 +4,8 @@ Package hsts implements a RoundTripper that supports HTTP Strict Transport Secur
 It comes preloaded with sites from Chromium (https://www.chromium.org/hsts),
 updated with go generate.
 */
-//go:generate go run generate/pins.go -p hsts -v pins -o pins.go
-//go:generate gofmt -w pins.go
+//go:generate go run generate/preload.go -p hsts -v preload -o preload.go
+//go:generate gofmt -w preload.go
 package hsts
 
 import (
@@ -34,7 +34,7 @@ func New(transport http.RoundTripper) *Transport {
 
 	// Make a copy or we would change the default for future callers.
 	state := make(map[string]*directive)
-	for host, directive := range pins {
+	for host, directive := range preload {
 		state[host] = directive
 	}
 
@@ -68,9 +68,9 @@ func (t *Transport) request(req *http.Request) *http.Request {
 		return req
 	}
 
-	static := d.received.IsZero()
-
-	if !static && time.Now().After(d.received.Add(d.maxAge)) {
+	// Preloaded sites do not expire; dynamic entries do.
+	preloaded := d.received.IsZero()
+	if !preloaded && time.Now().After(d.received.Add(d.maxAge)) {
 		delete(t.state, host)
 		return req
 	}

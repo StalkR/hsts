@@ -1,5 +1,4 @@
-// Binary pins generates a Go file with strict transport security pins from Chromium.
-// It does not extract public key pins.
+// Binary preload generates a Go file with preloaded HSTS sites from Chromium.
 package main
 
 import (
@@ -20,13 +19,13 @@ import (
 
 var (
 	pkg     = flag.String("p", "hsts", "Package name.")
-	varname = flag.String("v", "pins", "Variable name.")
-	out     = flag.String("o", "pins.go", "Output file.")
+	varname = flag.String("v", "preload", "Variable name.")
+	out     = flag.String("o", "preload.go", "Output file.")
 )
 
 func main() {
 	flag.Parse()
-	pins, err := Get()
+	sites, err := Get()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,7 +33,7 @@ func main() {
 	fmt.Fprintf(&b, "package %s\n", *pkg)
 	b.WriteString("\n")
 	fmt.Fprintf(&b, "var %s = map[string]*directive{\n", *varname)
-	for _, e := range pins {
+	for _, e := range sites {
 		if e.IncludeSubDomains {
 			fmt.Fprintf(&b, "\t%#v: &directive{includeSubDomains: true},\n", e.Name)
 		} else {
@@ -47,11 +46,11 @@ func main() {
 	}
 }
 
-const pinURL = "https://chromium.googlesource.com/chromium/src/+/master/net/http/transport_security_state_static.json?format=TEXT"
+const preloadURL = "https://chromium.googlesource.com/chromium/src/+/master/net/http/transport_security_state_static.json?format=TEXT"
 
-// Get obtains the file, decodes base64 and parses JSON to return the pins.
+// Get obtains the file, decodes base64 and parses JSON to return preloaded HSTS sites.
 func Get() ([]entry, error) {
-	resp, err := http.Get(pinURL)
+	resp, err := http.Get(preloadURL)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +71,7 @@ func Get() ([]entry, error) {
 		set[entry.Name] = entry
 	}
 	if len(set) == 0 {
-		return nil, errors.New("pins data empty")
+		return nil, errors.New("preload list empty")
 	}
 	var entries []entry
 	for _, entry := range set {

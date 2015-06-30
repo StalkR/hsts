@@ -1,6 +1,6 @@
 package hsts
 
-var pins = map[string]*directive{
+var preload = map[string]*directive{
 	"007sascha.de":                         &directive{includeSubDomains: true},
 	"0x0a.net":                             &directive{includeSubDomains: true},
 	"1000minds.com":                        &directive{includeSubDomains: true},
