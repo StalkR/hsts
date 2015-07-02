@@ -1,10 +1,9 @@
 package hsts
 
 import (
-	"bufio"
 	"log"
 	"net/http"
-	"strings"
+	"net/http/cookiejar"
 	"testing"
 )
 
@@ -26,10 +25,6 @@ func ExampleNew() {
 		log.Fatal(err)
 	}
 	defer resp.Body.Close()
-}
-
-func reply(req *http.Request, s string) (*http.Response, error) {
-	return http.ReadResponse(bufio.NewReader(strings.NewReader(s)), req)
 }
 
 type fakeTransport struct{}
@@ -91,5 +86,49 @@ func TestDefaultTransport(t *testing.T) {
 	transport := New(nil)
 	if transport.wrap != http.DefaultTransport {
 		t.Fatal("expected nil to set transport to DefaultTransport")
+	}
+}
+
+type cookieTransport struct{}
+
+func (f *cookieTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	if req.URL.Scheme == "https" {
+		return reply(req, "HTTP/1.1 200 OK\r\n"+
+			"Strict-Transport-Security: max-age=3600; includeSubDomains\r\n"+
+			"Set-Cookie: secure=1; Secure\r\n\r\n")
+	}
+	return reply(req, "HTTP/1.1 200 OK\r\n\r\n")
+}
+
+func TestSecureCookie(t *testing.T) {
+	client := http.DefaultClient
+	client.Transport = New(&cookieTransport{})
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	client.Jar = jar
+
+	// First request over HTTPS to obtain HSTS header and secure cookie.
+	resp, err := client.Get("https://example.com")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.Header.Get("Strict-Transport-Security") == "" {
+		t.Fatal("1: HSTS header missing in HTTPS request")
+	}
+
+	// Second request over HTTP to be upgraded to HTTPS. We expect secure cookie to be sent.
+	resp, err = client.Get("http://example.com")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.Header.Get("Strict-Transport-Security") == "" {
+		t.Fatal("2: HSTS header missing in HTTPS request")
+	}
+	if len(resp.Request.Cookies()) == 0 {
+		t.Fatal("2: secure cookie was not sent when upgraded to HTTPS")
 	}
 }
