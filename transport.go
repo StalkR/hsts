@@ -89,7 +89,7 @@ func (t *Transport) needsUpgrade(req *http.Request) (*url.URL, bool) {
 		return nil, false
 	}
 
-	u := *req.URL // copy to avoid avoiding the request URL
+	u := *req.URL // copy to avoid modifying the request URL
 
 	// Section 8.3 step 5a says to replace the http scheme with https.
 	if u.Scheme == "http" {
