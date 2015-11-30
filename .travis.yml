@@ -1,1 +1,9 @@
 language: go
+
+install:
+  - go get -t -v ./...
+  - go build -v ./...
+
+script:
+  - go test -v ./...
+  - go vet ./..
