@@ -2415,7 +2415,7 @@ var preload = map[string]bool{
 	"nowhere.dk":                                             true,
 	"noworrywp.com":                                          true,
 	"np.search.yahoo.com":                                    false,
-	"npmcdn.com":                                             true,
+	"unpkg.com":                                             true,
 	"npw.net":                                                true,
 	"nsboston.org":                                           true,
 	"nsboutique.com":                                         true,
