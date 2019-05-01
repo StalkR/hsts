@@ -54,6 +54,9 @@ func Get() ([]entry, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("server returned: %v", resp.Status)
+	}
 	js, err := removeComments(base64.NewDecoder(base64.StdEncoding, resp.Body))
 	if err != nil {
 		return nil, err
