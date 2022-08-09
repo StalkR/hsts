@@ -25,7 +25,7 @@ var (
 
 func main() {
 	flag.Parse()
-	sites, err := Get()
+	sites, err := get()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,8 +47,8 @@ func main() {
 
 const preloadURL = "https://chromium.googlesource.com/chromium/src/+/master/net/http/transport_security_state_static.json?format=TEXT"
 
-// Get obtains the file, decodes base64 and parses JSON to return preloaded HSTS sites.
-func Get() ([]entry, error) {
+// get obtains the file, decodes base64 and parses JSON to return preloaded HSTS sites.
+func get() ([]entry, error) {
 	resp, err := http.Get(preloadURL)
 	if err != nil {
 		return nil, err

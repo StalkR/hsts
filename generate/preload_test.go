@@ -5,7 +5,7 @@ import "testing"
 // TestGenerate tests that we can still generate the list, to catch
 // if anything changes on Chromium side.
 func TestGenerate(t *testing.T) {
-	sites, err := Get()
+	sites, err := get()
 	if err != nil {
 		t.Fatal(err)
 	}
