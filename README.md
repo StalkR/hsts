@@ -31,8 +31,8 @@ Usage (taken from the example in [godoc][4]):
 
 Bugs, comments, questions: create a [new issue][5].
 
-[1]: https://api.travis-ci.org/StalkR/hsts.png?branch=master
-[2]: https://travis-ci.org/StalkR/hsts
+[1]: https://github.com/StalkR/hsts/actions/workflows/build.yml/badge.svg
+[2]: https://github.com/StalkR/hsts/actions/workflows/build.yml
 [3]: https://godoc.org/github.com/StalkR/hsts?status.png
 [4]: https://godoc.org/github.com/StalkR/hsts
 [5]: https://github.com/StalkR/hsts/issues/new
