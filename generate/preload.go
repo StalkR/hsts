@@ -4,7 +4,6 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -45,7 +44,7 @@ func main() {
 	}
 }
 
-const preloadURL = "https://chromium.googlesource.com/chromium/src/+/master/net/http/transport_security_state_static.json?format=TEXT"
+const preloadURL = "https://github.com/chromium/chromium/raw/main/net/http/transport_security_state_static.json"
 
 // get obtains the file, decodes base64 and parses JSON to return preloaded HSTS sites.
 func get() ([]entry, error) {
@@ -57,7 +56,7 @@ func get() ([]entry, error) {
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("server returned: %v", resp.Status)
 	}
-	js, err := removeComments(base64.NewDecoder(base64.StdEncoding, resp.Body))
+	js, err := removeComments(resp.Body)
 	if err != nil {
 		return nil, err
 	}
